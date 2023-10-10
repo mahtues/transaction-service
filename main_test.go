@@ -14,8 +14,4 @@ func TestFoo(t *testing.T) {
 			t.Errorf("expected: %v, actual: %v", expected, actual)
 		}
 	})
-
-	t.Run("failed test", func(t *testing.T) {
-		t.Errorf("forced failure")
-	})
 }
