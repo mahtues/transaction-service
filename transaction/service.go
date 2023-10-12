@@ -22,9 +22,9 @@ type Service struct {
 	conversion conversion.Service
 }
 
-func NewServiceWithDynamo(client *dynamodb.DynamoDB) Service {
+func NewServiceWithDynamo(client *dynamodb.DynamoDB, tableName string) Service {
 	return Service{
-		repository: NewDynamoRepository(client),
+		repository: NewDynamoRepository(client, tableName),
 	}
 }
 
