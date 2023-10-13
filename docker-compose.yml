@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   dynamodb:
-    image: "amazon/dynamodb-local:latest"
+    image: "amazon/dynamodb-local:1.22.0"
     command: "-jar DynamoDBLocal.jar -dbPath ./data -sharedDb"
     working_dir: /home/dynamodblocal
     ports:
