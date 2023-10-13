@@ -1,9 +1,6 @@
 package transaction
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/pkg/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,19 +8,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type Dynamo struct {
+type DynamoRepository struct {
 	client    *dynamodb.DynamoDB
 	tableName string
 }
 
-func NewDynamoRepository(client *dynamodb.DynamoDB, tableName string) *Dynamo {
-	return &Dynamo{
+func NewDynamoRepository(client *dynamodb.DynamoDB, tableName string) *DynamoRepository {
+	return &DynamoRepository{
 		client:    client,
 		tableName: tableName,
 	}
 }
 
-func (d *Dynamo) SaveTransaction(transaction Transaction) error {
+func (d *DynamoRepository) SaveTransaction(transaction Transaction) error {
 	av, err := dynamodbattribute.MarshalMap(transaction)
 	if err != nil {
 		return errors.Wrap(err, "transaction marshal")
@@ -42,7 +39,7 @@ func (d *Dynamo) SaveTransaction(transaction Transaction) error {
 	return nil
 }
 
-func (d *Dynamo) LoadTransaction(id string) (Transaction, error) {
+func (d *DynamoRepository) LoadTransaction(id string) (Transaction, error) {
 	output, err := d.client.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(d.tableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -104,16 +101,4 @@ func DeleteTable(client *dynamodb.DynamoDB, name string) error {
 	}
 
 	return nil
-}
-
-var random = rand.New(rand.NewSource(time.Now().UnixNano()))
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func RandStringRunes(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[random.Intn(len(letterRunes))]
-	}
-	return string(b)
 }
