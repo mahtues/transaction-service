@@ -21,6 +21,13 @@ func NewServiceWithDynamo(client *dynamodb.DynamoDB, tableName string) Service {
 	}
 }
 
+func NewService(repository Repository, conversion conversion.Service) *Service {
+	return &Service{
+		repository: repository,
+		conversion: conversion,
+	}
+}
+
 func (s *Service) CreateTransaction(request CreateRequest) (CreateResponse, error) {
 	transaction := Transaction{
 		Id:          "tr-" + random.String(20),

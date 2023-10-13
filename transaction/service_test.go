@@ -3,31 +3,15 @@ package transaction
 import (
 	"testing"
 
+	"github.com/mahtues/transaction-service/conversion"
 	"github.com/pkg/errors"
 )
 
-type mockRepository struct {
-	saveTransactionFunc func(Transaction) error
-	loadTransactionFunc func(id string) (Transaction, error)
-}
-
-func (m *mockRepository) SaveTransaction(transaction Transaction) error {
-	return m.saveTransactionFunc(transaction)
-}
-
-func (m *mockRepository) LoadTransaction(id string) (Transaction, error) {
-	return m.loadTransactionFunc(id)
-}
-
-func newServiceWithMockRepository(mock *mockRepository) Service {
-	return Service{
-		repository: mock,
-	}
-}
-
 func TestUnit(t *testing.T) {
+	base := NewService(nil, conversion.Service{})
+
 	t.Run("success", func(t *testing.T) {
-		s := newServiceWithMockRepository(&mockRepository{
+		s := newServiceWithMockRepository(base, &mockRepository{
 			saveTransactionFunc: func(transaction Transaction) error {
 				if transaction.Id == "" {
 					return errors.New("transaction id not initialized")
@@ -49,7 +33,7 @@ func TestUnit(t *testing.T) {
 	})
 
 	t.Run("repository save error", func(t *testing.T) {
-		s := newServiceWithMockRepository(&mockRepository{
+		s := newServiceWithMockRepository(base, &mockRepository{
 			saveTransactionFunc: func(t Transaction) error {
 				return errors.New("save error")
 			},
@@ -61,4 +45,32 @@ func TestUnit(t *testing.T) {
 			t.Errorf("expected: %v, actual: %v", "not nil", actualErr)
 		}
 	})
+}
+
+type mockRepository struct {
+	saveTransactionFunc func(Transaction) error
+	loadTransactionFunc func(id string) (Transaction, error)
+	next                Repository
+}
+
+func newServiceWithMockRepository(service *Service, mock *mockRepository) *Service {
+	newService := *service
+	mock.next = service.repository
+	newService.repository = mock
+
+	return &newService
+}
+
+func (m *mockRepository) SaveTransaction(transaction Transaction) error {
+	if m.saveTransactionFunc == nil {
+		return m.next.SaveTransaction(transaction)
+	}
+	return m.saveTransactionFunc(transaction)
+}
+
+func (m *mockRepository) LoadTransaction(id string) (Transaction, error) {
+	if m.loadTransactionFunc == nil {
+		return m.next.LoadTransaction(id)
+	}
+	return m.loadTransactionFunc(id)
 }
