@@ -1,8 +1,16 @@
 package conversion
 
+import (
+	"time"
+)
+
 type Service struct {
 }
 
-func (s Service) GetRate(country string) (string, error) {
+func NewService() *Service {
+	return &Service{}
+}
+
+func (s *Service) GetRate(country string, date time.Time) (string, error) {
 	return "", nil
 }
