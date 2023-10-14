@@ -3,7 +3,6 @@ package transaction
 import (
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/pkg/errors"
 
 	"github.com/mahtues/transaction-service/conversion"
@@ -12,16 +11,10 @@ import (
 
 type Service struct {
 	repository Repository
-	conversion conversion.Service
+	conversion *conversion.Service
 }
 
-func NewServiceWithDynamo(client *dynamodb.DynamoDB, tableName string) Service {
-	return Service{
-		repository: NewDynamoRepository(client, tableName),
-	}
-}
-
-func NewService(repository Repository, conversion conversion.Service) *Service {
+func NewService(repository Repository, conversion *conversion.Service) *Service {
 	return &Service{
 		repository: repository,
 		conversion: conversion,

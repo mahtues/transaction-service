@@ -3,12 +3,11 @@ package transaction
 import (
 	"testing"
 
-	"github.com/mahtues/transaction-service/conversion"
 	"github.com/pkg/errors"
 )
 
 func TestUnit(t *testing.T) {
-	base := NewService(nil, conversion.Service{})
+	base := NewService(nil, nil)
 
 	t.Run("success", func(t *testing.T) {
 		s := newServiceWithMockRepository(base, &mockRepository{
