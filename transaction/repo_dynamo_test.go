@@ -64,10 +64,14 @@ func TestIntegrationDynamoRepository(t *testing.T) {
 
 		actual, err := repository.LoadTransaction(expected.Id)
 		if err != nil {
-			t.Errorf("expected: %v, err: %v", expected, err)
+			t.Errorf("expected: %v, err: %v", nil, err)
 		}
 		if actual != expected {
-			t.Errorf("expected: %v, actual: %v", expected, actual)
+			t.Errorf("   expected: %v, actual: %v", expected, actual)
+			t.Errorf("         Id: %v", expected.Id == actual.Id)
+			t.Errorf("Description: %v", expected.Description == actual.Description)
+			t.Errorf("       Date: %v", expected.Date == actual.Date)
+			t.Errorf("   AmountUs: %v", expected.AmountUs == actual.AmountUs)
 		}
 	})
 }
