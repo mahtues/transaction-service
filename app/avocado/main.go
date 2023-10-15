@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/pkg/errors"
 
 	"github.com/mahtues/form"
@@ -19,11 +17,11 @@ import (
 
 type Avocado struct {
 	// resources
-	awsSession        *session.Session
-	awsDynamoDbClient *dynamodb.DynamoDB
+	awsResources support.AwsResources
 
 	// repositories
-	transactionRepository transaction.DynamoRepository
+	transactionRepository      transaction.DynamoRepository
+	transactionInMemRepository transaction.InMemRepository
 
 	// services
 	transactionService transaction.Service
@@ -41,26 +39,17 @@ type Avocado struct {
 func NewAvocado() *Avocado {
 	avocado := &Avocado{}
 
-	var err error
-
 	// resources
-	if avocado.awsSession, err = support.AwsSessionLocalhost(4579); err != nil {
-		panic("message")
-	}
-
-	if avocado.awsDynamoDbClient, err = support.AwsDynamoDbClient(avocado.awsSession); err != nil {
-		panic("message")
-	}
+	// avocado.awsResources.Init()
 
 	// repositories
-	avocado.transactionRepository.Init(
-		avocado.awsDynamoDbClient,
-		"prod-transaction",
-	)
+	// avocado.transactionRepository.Init(&avocado.awsResources, "transactions")
+
+	avocado.transactionInMemRepository.Init()
 
 	// services
 	avocado.transactionService = *transaction.NewService(
-		&avocado.transactionRepository,
+		&avocado.transactionInMemRepository,
 		&avocado.conversionService,
 	)
 
