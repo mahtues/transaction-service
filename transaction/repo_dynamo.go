@@ -14,7 +14,13 @@ type DynamoRepository struct {
 }
 
 func NewDynamoRepository(client *dynamodb.DynamoDB, tableName string) *DynamoRepository {
-	return &DynamoRepository{
+	d := &DynamoRepository{}
+	d.Init(client, tableName)
+	return d
+}
+
+func (d *DynamoRepository) Init(client *dynamodb.DynamoDB, tableName string) {
+	*d = DynamoRepository{
 		client:    client,
 		tableName: tableName,
 	}
@@ -51,7 +57,7 @@ func (d *DynamoRepository) LoadTransaction(id string) (Transaction, error) {
 	}
 
 	if output.Item == nil {
-		return Transaction{}, errors.Wrap(err, "transaction not found")
+		return Transaction{}, errors.New("transaction not found")
 	}
 
 	var transaction Transaction
