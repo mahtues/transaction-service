@@ -15,10 +15,14 @@ type Service struct {
 }
 
 func NewService(repository Repository, conversion *conversion.Service) *Service {
-	return &Service{
-		repository: repository,
-		conversion: conversion,
-	}
+	s := &Service{}
+	s.Init(repository, conversion)
+	return s
+}
+
+func (s *Service) Init(repository Repository, conversion *conversion.Service) {
+	s.repository = repository
+	s.conversion = conversion
 }
 
 func (s *Service) CreateTransaction(request CreateRequest) (CreateResponse, error) {
