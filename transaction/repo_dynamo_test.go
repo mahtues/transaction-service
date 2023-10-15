@@ -73,7 +73,7 @@ func TestIntegrationDynamoRepository(t *testing.T) {
 			t.Errorf("   AmountUs: %v", expected.AmountUs == actual.AmountUs)
 			t.Errorf("       Date: %v", expected.Date == actual.Date)
 			t.Errorf("       Date: %v", actual.Date.Equal(expected.Date))
-			t.Errorf("       Date: %v %v", expected.Date.Unix(), actual.Date.Unis())
+			t.Errorf("       Date: %v %v", expected.Date.Unix(), actual.Date.Unix())
 		}
 	})
 }
