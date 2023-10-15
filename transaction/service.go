@@ -65,7 +65,8 @@ type CreateResponse struct {
 }
 
 type GetRequest struct {
-	Id string
+	Id       string
+	Currency string
 }
 
 type GetResponse struct {
