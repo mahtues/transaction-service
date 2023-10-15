@@ -66,7 +66,7 @@ func TestIntegrationDynamoRepository(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected: %v, err: %v", nil, err)
 		}
-		if actual.Equal(expected) {
+		if !actual.Equal(expected) {
 			t.Errorf("   expected: %v, actual: %v", expected, actual)
 		}
 	})
