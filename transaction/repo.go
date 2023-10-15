@@ -5,10 +5,10 @@ import (
 )
 
 type Transaction struct {
-	Id          string    `dynamodbav:"id"`
-	Description string    `dynamodbav:"description"`
-	Date        time.Time `dynamodbav:"date"`
-	AmountUs    string    `dynamodbav:"amountUs"`
+	Id          string
+	Description string
+	Date        time.Time
+	AmountUs    string
 }
 
 type Repository interface {

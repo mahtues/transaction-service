@@ -16,25 +16,20 @@ func TestIntegrationDynamoRepository(t *testing.T) {
 		t.Skip("skipping integration tests")
 	}
 
-	// todo: test setup can be generalized
-	session, err := support.AwsSessionLocalhost(4579)
-	if err != nil {
-		t.Fatal("failed to create aws session")
-	}
+	var err error
 
-	dynamo, err := support.AwsDynamoDbClient(session)
-	if err != nil {
-		t.Fatal("failed to create dynamo client")
-	}
+	var awsResources support.AwsResources
+
+	awsResources.Init()
 
 	tableName := random.String(10) + "-transactions"
 
-	if err = CreateTable(dynamo, tableName); err != nil {
+	if err = CreateTable(awsResources.DynamoDbClient, tableName); err != nil {
 		t.Fatal(err)
 	}
-	defer DeleteTable(dynamo, tableName)
+	defer DeleteTable(awsResources.DynamoDbClient, tableName)
 
-	repository := NewDynamoRepository(dynamo, tableName)
+	repository := NewDynamoRepository(&awsResources, tableName)
 
 	t.Run("save transaction", func(t *testing.T) {
 		transaction := Transaction{

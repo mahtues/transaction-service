@@ -1,6 +1,9 @@
 package transaction
 
 import (
+	"time"
+
+	"github.com/mahtues/transaction-service/support"
 	"github.com/pkg/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,21 +16,35 @@ type DynamoRepository struct {
 	tableName string
 }
 
-func NewDynamoRepository(client *dynamodb.DynamoDB, tableName string) *DynamoRepository {
+func NewDynamoRepository(awsResources *support.AwsResources, tableName string) *DynamoRepository {
 	d := &DynamoRepository{}
-	d.Init(client, tableName)
+	d.Init(awsResources, tableName)
 	return d
 }
 
-func (d *DynamoRepository) Init(client *dynamodb.DynamoDB, tableName string) {
+func (d *DynamoRepository) Init(awsResources *support.AwsResources, tableName string) {
 	*d = DynamoRepository{
-		client:    client,
+		client:    awsResources.DynamoDbClient,
 		tableName: tableName,
 	}
 }
 
+type transactionItem struct {
+	Id          string    `dynamodbav:"id"`
+	Description string    `dynamodbav:"description"`
+	Date        time.Time `dynamodbav:"date"`
+	AmountUs    string    `dynamodbav:"amountUs"`
+}
+
 func (d *DynamoRepository) SaveTransaction(transaction Transaction) error {
-	av, err := dynamodbattribute.MarshalMap(transaction)
+	item := transactionItem{
+		Id:          transaction.Id,
+		Description: transaction.Description,
+		Date:        transaction.Date,
+		AmountUs:    transaction.AmountUs,
+	}
+
+	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		return errors.Wrap(err, "transaction marshal")
 	}
@@ -60,10 +77,17 @@ func (d *DynamoRepository) LoadTransaction(id string) (Transaction, error) {
 		return Transaction{}, errors.New("transaction not found")
 	}
 
-	var transaction Transaction
+	var item transactionItem
 
-	if err = dynamodbattribute.UnmarshalMap(output.Item, &transaction); err != nil {
+	if err = dynamodbattribute.UnmarshalMap(output.Item, &item); err != nil {
 		return Transaction{}, errors.Wrap(err, "unmarshal transaction")
+	}
+
+	transaction := Transaction{
+		Id:          item.Id,
+		Description: item.Description,
+		Date:        item.Date,
+		AmountUs:    item.AmountUs,
 	}
 
 	return transaction, nil
