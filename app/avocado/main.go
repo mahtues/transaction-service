@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/pkg/errors"
 
@@ -46,6 +47,10 @@ func NewAvocado() *Avocado {
 	avocado.transactionService.Init(
 		&avocado.transactionInMemRepository,
 		&avocado.conversionService,
+	)
+
+	avocado.conversionService.Init(
+		http.DefaultClient,
 	)
 
 	avocado.httpServer.Init(
