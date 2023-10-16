@@ -3,8 +3,10 @@ package conversion
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/mahtues/transaction-service/support"
@@ -73,4 +75,23 @@ func (s *Service) GetRate(country string, date time.Time) (string, error) {
 	}
 
 	return resBody.Data[0].ExchangeRate, nil
+}
+
+func Convert(value string, rate string) (string, error) {
+	v, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println(value, v)
+
+	r, err := strconv.ParseFloat(rate, 64)
+	if err != nil {
+		return "", err
+	}
+
+	c := v * r
+	converted := fmt.Sprintf("%.2f", c)
+
+	return converted, nil
 }

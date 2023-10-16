@@ -50,7 +50,12 @@ func (s *Service) GetTransaction(request GetRequest) (GetResponse, error) {
 
 	rate, err := s.conversion.GetRate(request.Country, transaction.Date)
 	if err != nil {
-		return GetResponse{}, errors.Wrap(err, "failed to get conversion rate for transaction")
+		return GetResponse{}, errors.Wrap(err, "failed to get conversion rate")
+	}
+
+	amountConverted, err := conversion.Convert(transaction.AmountUs, rate)
+	if err != nil {
+		return GetResponse{}, errors.Wrap(err, "failed to convert amount")
 	}
 
 	return GetResponse{
@@ -59,7 +64,7 @@ func (s *Service) GetTransaction(request GetRequest) (GetResponse, error) {
 		Date:            transaction.Date,
 		AmountUs:        transaction.AmountUs,
 		Rate:            rate,
-		AmountConverted: "",
+		AmountConverted: amountConverted,
 	}, nil
 }
 
