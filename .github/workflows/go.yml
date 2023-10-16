@@ -23,5 +23,11 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+    - name: Set up test infra
+      run: docker run -p 4579:8000 amazon/dynamodb-local:1.22.0 -jar DynamoDBLocal.jar -sharedDb &
+
+    - name: Wait test infra
+      run: sleep 10
+
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./... -integration
