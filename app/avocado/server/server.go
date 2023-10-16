@@ -31,7 +31,7 @@ func (s *Server) Init(transactionService *transaction.Service) {
 	m.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
 		frm := struct {
 			Description string       `form:"description"`
-			Date        support.Date `form:"date"`
+			Date        support.Time `form:"date"`
 			AmountUs    string       `form:"amountUs"`
 		}{}
 
@@ -74,7 +74,7 @@ func (s *Server) Init(transactionService *transaction.Service) {
 
 	m.HandleFunc("/transaction/", func(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Path[len("/transaction/"):]
-		currency := r.FormValue("curr")
+		country := r.FormValue("country")
 
 		type respOk struct {
 			Id              string    `json:"id"`
@@ -92,8 +92,8 @@ func (s *Server) Init(transactionService *transaction.Service) {
 		var err error
 
 		request := transaction.GetRequest{
-			Id:       id,
-			Currency: currency,
+			Id:      id,
+			Country: country,
 		}
 
 		response := transaction.GetResponse{}

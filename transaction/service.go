@@ -48,12 +48,17 @@ func (s *Service) GetTransaction(request GetRequest) (GetResponse, error) {
 		return GetResponse{}, errors.Wrapf(err, "failed to load transaction id %v", request.Id)
 	}
 
+	rate, err := s.conversion.GetRate(request.Country, transaction.Date)
+	if err != nil {
+		return GetResponse{}, errors.Wrap(err, "failed to get conversion rate for transaction")
+	}
+
 	return GetResponse{
 		Id:              transaction.Id,
 		Description:     transaction.Description,
 		Date:            transaction.Date,
 		AmountUs:        transaction.AmountUs,
-		Rate:            "",
+		Rate:            rate,
 		AmountConverted: "",
 	}, nil
 }
@@ -69,8 +74,8 @@ type CreateResponse struct {
 }
 
 type GetRequest struct {
-	Id       string
-	Currency string
+	Id      string
+	Country string
 }
 
 type GetResponse struct {
