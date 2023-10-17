@@ -47,7 +47,7 @@ The Core type - a.k.a. `Avocado` - glues the entire together. It is responsible 
 
 ### Server
 
-The server has two end-points
+The server has two end-points.
 
 ```
 POST /transaction
@@ -64,7 +64,7 @@ amountUs: "123.45"
 date: "2006-01-02T15:04:05Z"
 ```
 
-In case of success return `200 OK` and a JSON with the transaction ID created:
+In case of success, return `200 OK` and a JSON with the transaction ID created:
 
 ```json
 {
@@ -77,6 +77,33 @@ Otherwise, a status code error and a JSON with an error message. e.g.
 ```json
 {
   "error": "invalid form: description missing, date missing, amountUs missing"
+}
+```
+
+And
+
+```
+GET /transaction/<transaction-id>?country=<country>
+```
+
+In case of success, return `200 OK` and a JSON with the transaction ID created:
+
+```
+{
+  "id": "tr-frnshjdacxdnjhsczqqe",
+  "description": "asd",
+  "date": "2022-07-31T20:04:59Z",
+  "amountUs": "123.3",
+  "conversionRate": "5.182",
+  "amountConverted": "638.94"
+}
+```
+
+Otherwise, a status code error and a JSON with an error message. e.g.
+
+```json
+{
+  "error": "transaction id tr-frnshjdacxdnjhsczqq not found"
 }
 ```
 
