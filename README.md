@@ -8,7 +8,7 @@ The project structure was inspired by the Hexagonal Architecture. It comprises a
 
 ## Architecture
 
-![image](https://github.com/mahtues/transaction-service/assets/14203456/a058a367-ab3f-4d10-bce8-2d55257b8503)
+![image](https://github.com/mahtues/transaction-service/assets/14203456/04c1ca79-f49c-4ee7-ab64-84b2d0cd4b4d)
 
 ```
 transaction-service$ tree
