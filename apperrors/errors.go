@@ -14,11 +14,7 @@ type AppError struct {
 }
 
 func (e *AppError) Error() string {
-	if e.cause == nil {
-		return e.message
-	}
-
-	return e.message + ": " + e.cause.Error()
+	return e.message
 }
 
 func (e *AppError) Cause() error { return e.cause }

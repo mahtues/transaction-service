@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"github.com/mahtues/transaction-service/apperrors"
 	"github.com/pkg/errors"
 )
 
@@ -20,7 +21,7 @@ func (m *InMemRepository) SaveTransaction(transaction Transaction) error {
 func (m *InMemRepository) LoadTransaction(id string) (Transaction, error) {
 	transaction, found := m.mem[id]
 	if !found {
-		return Transaction{}, errors.New("transaction not found")
+		return Transaction{}, apperrors.Wrapf(errors.New("root cause"), "transaction id %s not found", id)
 	}
 
 	return transaction, nil

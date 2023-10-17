@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/mahtues/form"
+	"github.com/mahtues/transaction-service/apperrors"
 	"github.com/mahtues/transaction-service/support"
 	"github.com/mahtues/transaction-service/transaction"
 )
@@ -24,8 +26,8 @@ func (s *Server) Init(transactionService *transaction.Service) {
 
 	m := http.NewServeMux()
 
-	m.HandleFunc("/transaction", s.createTransaction)
-	m.HandleFunc("/transaction/", s.getTransaction)
+	m.HandleFunc("/transaction", MustMethodFunc(http.MethodPost, s.createTransaction))
+	m.HandleFunc("/transaction/", MustMethodFunc(http.MethodGet, s.getTransaction))
 	m.HandleFunc("/heartbeat", s.heartbeat)
 
 	s.handler = m
@@ -62,8 +64,10 @@ func (s *Server) getTransaction(w http.ResponseWriter, r *http.Request) {
 	response := transaction.GetResponse{}
 
 	if response, err = s.transactionService.GetTransaction(request); err != nil {
+		apperror := apperrors.Cause(err)
+
 		json.NewEncoder(w).Encode(respError{
-			Error: err.Error(),
+			Error: apperror.Error(),
 		})
 		return
 	}
@@ -80,9 +84,9 @@ func (s *Server) getTransaction(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) createTransaction(w http.ResponseWriter, r *http.Request) {
 	frm := struct {
-		Description string       `form:"description"`
-		Date        support.Time `form:"date"`
-		AmountUs    string       `form:"amountUs"`
+		Description *string       `form:"description"`
+		Date        *support.Time `form:"date"`
+		AmountUs    *string       `form:"amountUs"`
 	}{}
 
 	type respOk struct {
@@ -102,17 +106,43 @@ func (s *Server) createTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	invalid := []string{}
+
+	if frm.Description == nil {
+		invalid = append(invalid, "description missing")
+	} else if len(*frm.Description) == 0 || len(*frm.Description) > 50 {
+		invalid = append(invalid, "description must contain between 1 and 50 characters")
+	}
+
+	if frm.Date == nil {
+		invalid = append(invalid, "date missing")
+	}
+
+	if frm.AmountUs == nil || len(*frm.AmountUs) == 0 {
+		invalid = append(invalid, "amountUs missing")
+	}
+
+	if len(invalid) > 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(respError{
+			Error: fmt.Sprintf("invalid form: %s", strings.Join(invalid, ", ")),
+		})
+		return
+	}
+
 	request := transaction.CreateRequest{
-		Description: frm.Description,
-		Date:        time.Time(frm.Date),
-		AmountUs:    frm.AmountUs,
+		Description: *frm.Description,
+		Date:        time.Time(*frm.Date),
+		AmountUs:    *frm.AmountUs,
 	}
 
 	response := transaction.CreateResponse{}
 
 	if response, err = s.transactionService.CreateTransaction(request); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		apperr := apperrors.Cause(err)
 		json.NewEncoder(w).Encode(respError{
-			Error: err.Error(),
+			Error: apperr.Error(),
 		})
 		return
 	}

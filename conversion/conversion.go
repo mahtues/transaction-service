@@ -3,12 +3,12 @@ package conversion
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/mahtues/transaction-service/apperrors"
 	"github.com/mahtues/transaction-service/support"
 	"github.com/pkg/errors"
 )
@@ -46,11 +46,13 @@ func (s *Service) GetRate(country string, date time.Time) (string, error) {
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to do request")
+		// return "", errors.Wrap(err, "failed to do request")
+		return "", apperrors.Wrapf(errors.New(err.Error()), "service temporarily unavailable")
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return "", errors.New(fmt.Sprint("response status code: ", res.Status))
+		// return "", errors.New(fmt.Sprint("response status code: ", res.Status))
+		return "", apperrors.Wrapf(errors.New(err.Error()), "service temporarily unavailable")
 	}
 
 	type rateEntry struct {
@@ -67,11 +69,13 @@ func (s *Service) GetRate(country string, date time.Time) (string, error) {
 
 	err = json.NewDecoder(res.Body).Decode(&resBody)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to read response body")
+		// return "", errors.Wrap(err, "failed to read response body")
+		return "", apperrors.Wrapf(errors.New(err.Error()), "service temporarily unavailable")
 	}
 
 	if len(resBody.Data) == 0 {
-		return "", errors.New("no rates found for date range")
+		// return "", errors.New("no rates found for date range")
+		return "", apperrors.Wrapf(errors.New(""), "no rates found for date range for specified country")
 	}
 
 	return resBody.Data[0].ExchangeRate, nil
@@ -82,8 +86,6 @@ func Convert(value string, rate string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	log.Println(value, v)
 
 	r, err := strconv.ParseFloat(rate, 64)
 	if err != nil {

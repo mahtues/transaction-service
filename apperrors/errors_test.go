@@ -1,8 +1,6 @@
 package apperrors
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -94,20 +92,4 @@ func TestAppErrors(t *testing.T) {
 			t.Errorf("expected: %v, actual: %v", expected, actual)
 		}
 	})
-}
-
-func printStackTrace(err error) string {
-	type stackTracer interface {
-		StackTrace() errors.StackTrace
-	}
-
-	lines := []string{}
-
-	if err, ok := err.(stackTracer); ok {
-		for _, f := range err.StackTrace() {
-			lines = append(lines, fmt.Sprintf("%+s:%d", f, f))
-		}
-	}
-
-	return strings.Join(lines, "\n")
 }
