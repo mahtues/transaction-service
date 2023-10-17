@@ -167,7 +167,7 @@ Github Actions is used to run tests in PRs.
 
 Some requirements were not implemented due to time constraints. This is a small project I will keep developing as a way to increase my Golang knowledge.
 
-The current implementation uses `float64` to convert currencies. This is WRONG. Native floating point types must be avoided when decimal precision is required, such as monetary representation. Research for a decimal library will be conducted.
+The current implementation uses `float64` to convert currencies. This is **WRONG**. Native floating point types must be avoided when decimal precision is required, such as monetary representation. Research for a decimal library will be conducted.
 
 Upgrading my account to a paid tier, I would use Github actions to
 
