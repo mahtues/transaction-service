@@ -123,4 +123,40 @@ The only responsibility of the Transaction Repository is to access the persisten
 
 Conversion Service consumes the Treasury Reporting Rates of Exchange API.
 
+## Tests
+
+In the project's root, running
+
+```
+$ go test -v ./...
+```
+
+Unit tests are implemented, creating the service to be tested and injecting mocks as dependencies. Those mocks can check for method calls and return distinct values to increase the test coverage.
+
+## Running
+
+Running the server can be done executing from the project's root
+
+```
+$ go run app/avocado/main.go
+```
+
+The server runs on port `8000`. Some `curl` examples:
+
+```bash
+$ curl -s http://localhost:8000/transaction -d 'description=desc&amountUs=123.45&date=2022-07-31T20:04:59Z' | jq
+{
+  "id": "tr-iympvyxnfwqvvuprkzku"
+}
+$ curl -s http://localhost:8000/transaction/tr-iympvyxnfwqvvuprkzku?country=Brazil | jq
+{
+  "id": "tr-iympvyxnfwqvvuprkzku",
+  "description": "message",
+  "date": "2022-07-31T20:04:59Z",
+  "amountUs": "123.45",
+  "conversionRate": "5.182",
+  "amountConverted": "639.72"
+}
+```
+
 ## Future Improvements
