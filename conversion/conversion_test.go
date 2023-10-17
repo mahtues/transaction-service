@@ -10,9 +10,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-type mockHttpClient func(request *http.Request) (*http.Response, error)
+type httpClientFunc func(request *http.Request) (*http.Response, error)
 
-func (m mockHttpClient) Do(request *http.Request) (*http.Response, error) {
+func (m httpClientFunc) Do(request *http.Request) (*http.Response, error) {
 	return m(request)
 }
 
@@ -25,7 +25,7 @@ func TestGetRateUnit(t *testing.T) {
 	t.Run("connection error", func(t *testing.T) {
 		var conv Service
 
-		conv.Init(mockHttpClient(func(request *http.Request) (*http.Response, error) {
+		conv.Init(httpClientFunc(func(request *http.Request) (*http.Response, error) {
 			return nil, errors.New("connection error")
 		}))
 
@@ -38,7 +38,7 @@ func TestGetRateUnit(t *testing.T) {
 	t.Run("error status code from remote api", func(t *testing.T) {
 		var conv Service
 
-		conv.Init(mockHttpClient(func(request *http.Request) (*http.Response, error) {
+		conv.Init(httpClientFunc(func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: http.StatusBadRequest,
 				Body:       io.NopCloser(strings.NewReader("")),
@@ -54,7 +54,7 @@ func TestGetRateUnit(t *testing.T) {
 	t.Run("no results", func(t *testing.T) {
 		var conv Service
 
-		conv.Init(mockHttpClient(func(request *http.Request) (*http.Response, error) {
+		conv.Init(httpClientFunc(func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(strings.NewReader(responseNoResults)),
@@ -70,7 +70,7 @@ func TestGetRateUnit(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		var conv Service
 
-		conv.Init(mockHttpClient(func(request *http.Request) (*http.Response, error) {
+		conv.Init(httpClientFunc(func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(strings.NewReader(responseOneResult)),
