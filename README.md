@@ -47,6 +47,39 @@ The Core type - a.k.a. `Avocado` - glues the entire together. It is responsible 
 
 ### Server
 
+The server has two end-points
+
+```
+POST /transaction
+Content-Type: application/x-www-form-urlencoded
+
+description=<description>&amountUs=123.45&date=2006-01-02T15:04:05Z
+```
+
+Form's fields format:
+
+```
+description: "string 1-50 characters"
+amountUs: "123.45"
+date: "2006-01-02T15:04:05Z"
+```
+
+In case of success return `200 OK` and a JSON with the transaction ID created:
+
+```json
+{
+  "id": "tr-frnshjdacxdnjhsczqqe"
+}
+```
+
+Otherwise, a status code error and a JSON with an error message. e.g.
+
+```json
+{
+  "error": "invalid form: description missing, date missing, amountUs missing"
+}
+```
+
 ### Transaction Service
 
 ### Transaction Repository
