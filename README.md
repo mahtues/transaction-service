@@ -2,6 +2,10 @@
 
 ## Introduction
 
+The project is implemented in Golang, using only the standard libraries. Not using third-party libraries was a choice. This approach is more challenging in the sense that a framework's basic features are not available and must be implemented or at least taken into consideration. It also forces an exploration and deep understanding of the technology.
+
+The project structure was inspired by the Hexagonal Architecture. It comprises a core of business logic independent of technology and infrastructure. And attachable driver and driven actors.
+
 ## Architecture
 
 ![image](https://github.com/mahtues/transaction-service/assets/14203456/a058a367-ab3f-4d10-bce8-2d55257b8503)
@@ -109,10 +113,14 @@ Otherwise, a status code error and a JSON with an error message. e.g.
 
 ### Transaction Service
 
+Transaction Service contains the business logic for transactions in general. It routes creation requests to the repository and uses the conversion service to retrieve requests.
+
 ### Transaction Repository
+
+The only responsibility of the Transaction Repository is to access the persistence. In the current implementation, it is an in-memory key-value database (a Hash Map). Other persistence implementations can easily replace it. For example, the dynamo repository is functional and can be used if properly configured.
 
 ### Conversion Service
 
-## Requests
+Conversion Service consumes the Treasury Reporting Rates of Exchange API.
 
 ## Future Improvements
