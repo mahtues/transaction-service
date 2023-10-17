@@ -24,102 +24,110 @@ func (s *Server) Init(transactionService *transaction.Service) {
 
 	m := http.NewServeMux()
 
-	m.HandleFunc("/heartbeat", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "alive")
-	})
-
-	m.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
-		frm := struct {
-			Description string       `form:"description"`
-			Date        support.Time `form:"date"`
-			AmountUs    string       `form:"amountUs"`
-		}{}
-
-		type respOk struct {
-			Id string `json:"id,omitempty"`
-		}
-
-		type respError struct {
-			Error string `json:"error,omitempty"`
-		}
-
-		var err error
-
-		if err = form.Unmarshal(r, &frm); err != nil {
-			json.NewEncoder(w).Encode(respError{
-				Error: err.Error(),
-			})
-			return
-		}
-
-		request := transaction.CreateRequest{
-			Description: frm.Description,
-			Date:        time.Time(frm.Date),
-			AmountUs:    frm.AmountUs,
-		}
-
-		response := transaction.CreateResponse{}
-
-		if response, err = s.transactionService.CreateTransaction(request); err != nil {
-			json.NewEncoder(w).Encode(respError{
-				Error: err.Error(),
-			})
-			return
-		}
-
-		json.NewEncoder(w).Encode(respOk{
-			Id: response.Id,
-		})
-	})
-
-	m.HandleFunc("/transaction/", func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len("/transaction/"):]
-		country := r.FormValue("country")
-
-		type respOk struct {
-			Id              string    `json:"id"`
-			Description     string    `json:"description"`
-			Date            time.Time `json:"date"`
-			AmountUs        string    `json:"amountUs"`
-			ConversionRate  string    `json:"conversionRate"`
-			AmountConverted string    `json:"amountConverted"`
-		}
-
-		type respError struct {
-			Error string `json:"error,omitempty"`
-		}
-
-		var err error
-
-		request := transaction.GetRequest{
-			Id:      id,
-			Country: country,
-		}
-
-		response := transaction.GetResponse{}
-
-		if response, err = s.transactionService.GetTransaction(request); err != nil {
-			json.NewEncoder(w).Encode(respError{
-				Error: err.Error(),
-			})
-			return
-		}
-
-		json.NewEncoder(w).Encode(respOk{
-			Id:              response.Id,
-			Description:     response.Description,
-			Date:            response.Date,
-			AmountUs:        response.AmountUs,
-			ConversionRate:  response.Rate,
-			AmountConverted: response.AmountConverted,
-		})
-	})
+	m.HandleFunc("/transaction", s.createTransaction)
+	m.HandleFunc("/transaction/", s.getTransaction)
+	m.HandleFunc("/heartbeat", s.heartbeat)
 
 	s.handler = m
 }
 
+func (s *Server) heartbeat(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "alive")
+}
+
+func (s *Server) getTransaction(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/transaction/"):]
+	country := r.FormValue("country")
+
+	type respOk struct {
+		Id              string    `json:"id"`
+		Description     string    `json:"description"`
+		Date            time.Time `json:"date"`
+		AmountUs        string    `json:"amountUs"`
+		ConversionRate  string    `json:"conversionRate"`
+		AmountConverted string    `json:"amountConverted"`
+	}
+
+	type respError struct {
+		Error string `json:"error,omitempty"`
+	}
+
+	var err error
+
+	request := transaction.GetRequest{
+		Id:      id,
+		Country: country,
+	}
+
+	response := transaction.GetResponse{}
+
+	if response, err = s.transactionService.GetTransaction(request); err != nil {
+		json.NewEncoder(w).Encode(respError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(respOk{
+		Id:              response.Id,
+		Description:     response.Description,
+		Date:            response.Date,
+		AmountUs:        response.AmountUs,
+		ConversionRate:  response.Rate,
+		AmountConverted: response.AmountConverted,
+	})
+}
+
+func (s *Server) createTransaction(w http.ResponseWriter, r *http.Request) {
+	frm := struct {
+		Description string       `form:"description"`
+		Date        support.Time `form:"date"`
+		AmountUs    string       `form:"amountUs"`
+	}{}
+
+	type respOk struct {
+		Id string `json:"id,omitempty"`
+	}
+
+	type respError struct {
+		Error string `json:"error,omitempty"`
+	}
+
+	var err error
+
+	if err = form.Unmarshal(r, &frm); err != nil {
+		json.NewEncoder(w).Encode(respError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	request := transaction.CreateRequest{
+		Description: frm.Description,
+		Date:        time.Time(frm.Date),
+		AmountUs:    frm.AmountUs,
+	}
+
+	response := transaction.CreateResponse{}
+
+	if response, err = s.transactionService.CreateTransaction(request); err != nil {
+		json.NewEncoder(w).Encode(respError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(respOk{
+		Id: response.Id,
+	})
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.handler.ServeHTTP(w, r)
+}
+
 func (s *Server) Start() error {
-	if err := http.ListenAndServe(":8000", s.handler); err != nil {
+	if err := http.ListenAndServe(":8000", s); err != nil {
 		return errors.Wrap(err, "failed to start server")
 	}
 
