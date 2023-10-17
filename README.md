@@ -103,7 +103,7 @@ In case of success, return `200 OK` and a JSON with the transaction ID created:
 }
 ```
 
-Otherwise, a status code error and a JSON with an error message. e.g.
+Otherwise, there is a status code error and a JSON with an error message. e.g.
 
 ```json
 {
@@ -125,7 +125,7 @@ Conversion Service consumes the Treasury Reporting Rates of Exchange API.
 
 ## Tests
 
-In the project's root, running
+A non-existent set of unit tests are implemented. In the project's root, running
 
 ```
 $ go test -v ./...
@@ -135,7 +135,7 @@ Unit tests are implemented, creating the service to be tested and injecting mock
 
 ## Running
 
-Running the server can be done executing from the project's root
+Running the server can be done by executing from the project's root
 
 ```
 $ go run app/avocado/main.go
@@ -159,4 +159,19 @@ $ curl -s http://localhost:8000/transaction/tr-iympvyxnfwqvvuprkzku?country=Braz
 }
 ```
 
+## Github Workflow
+
+Github Actions is used to run tests in PRs.
+
 ## Future Improvements
+
+Some requirements were not implemented due to time constraints. This is a small project I will keep developing as a way to increase my Golang knowledge.
+
+The current implementation uses `float64` to convert currencies. This is WRONG. Native floating point types must be avoided when decimal precision is required, such as monetary representation. Research for a decimal library will be conducted.
+
+Upgrading my account to a paid tier, I would use Github actions to
+
+- block commits to main;
+- merges to main only from PRs with at least some amount of approvers and passing all actions (just unit tests for now);
+- add integration tests. It is possible to spin up some infrastructure using docker-compose;
+- create staging and development environments and a CD to deliver code to those places.
