@@ -52,7 +52,7 @@ func (s *Service) GetRate(country string, date time.Time) (string, error) {
 
 	if res.StatusCode != http.StatusOK {
 		// return "", errors.New(fmt.Sprint("response status code: ", res.Status))
-		return "", apperrors.Wrapf(errors.New(err.Error()), "service temporarily unavailable")
+		return "", apperrors.Wrapf(errors.New(res.Status), "service temporarily unavailable")
 	}
 
 	type rateEntry struct {
